@@ -1,4 +1,5 @@
 import { terminal as term } from 'terminal-kit';
+import { execSync } from 'child_process';
 import fs from 'fs';
 
 function sanitizeUrls(urls: string[]) {
@@ -41,4 +42,24 @@ export function getVideoUrls(videoUrls: any) {
 
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+export function checkRequirements() {
+    try {
+        const ytdlVer = execSync('youtube-dl --version');
+        term.green(`Using youtube-dl version ${ytdlVer}`);
+
+    } catch (e) {
+        console.error('youtube-dl is missing. You need a fairly recent release of youtube-dl in $PATH.');
+        process.exit(22);
+    }
+
+    try {
+        const ffmpegVer = execSync('ffmpeg -version').toString().split('\n')[0];
+        term.green(`Using ${ffmpegVer}\n`);
+
+    } catch (e) {
+        console.error('FFmpeg is missing. You need a fairly recent release of FFmpeg in $PATH.');
+        process.exit(23);
+    }
 }
