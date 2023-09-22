@@ -3,7 +3,6 @@ import { checkOutDir } from './Utils';
 import { logger } from './Logger';
 
 import fs from 'fs';
-import readlineSync from 'readline-sync';
 import yargs from 'yargs';
 
 
@@ -127,14 +126,4 @@ function checkInputConflicts(inputFile: string | undefined): boolean {
     }
 
     return true;
-}
-
-export function promptUser(choices: Array<string>): number {
-    const index: number = readlineSync.keyInSelect(choices, 'Which resolution/format do you prefer?');
-
-    if (index === -1) {
-        process.exit(ERROR_CODE.CANCELLED_USER_INPUT);
-    }
-
-    return index;
 }
