@@ -1,12 +1,12 @@
 import { chromeCacheFolder } from './destreamer';
 import { ERROR_CODE } from './Errors';
 import { logger } from './Logger';
-import { getPuppeteerChromiumPath } from './PuppeteerHelper';
 import { Session } from './Types';
 
 import fs from 'fs';
 import jwtDecode from 'jwt-decode';
-import puppeteer from 'puppeteer';
+import puppeteer, {Browser, Page, Target} from 'puppeteer';
+import {timeout} from "./Utils";
 
 
 export class TokenCache {
@@ -57,8 +57,7 @@ export class TokenCache {
 export async function refreshSession(url: string): Promise<Session> {
     const videoId: string = url.split('/').pop() ?? process.exit(ERROR_CODE.INVALID_VIDEO_GUID);
 
-    const browser: puppeteer.Browser = await puppeteer.launch({
-        executablePath: getPuppeteerChromiumPath(),
+    const browser: Browser = await puppeteer.launch({
         headless: false,            // NEVER TRUE OR IT DOES NOT WORK
         userDataDir: chromeCacheFolder,
         args: [
@@ -68,10 +67,10 @@ export async function refreshSession(url: string): Promise<Session> {
         ]
     });
 
-    const page: puppeteer.Page = (await browser.pages())[0];
+    const page: Page = (await browser.pages())[0];
     await page.goto(url, { waitUntil: 'load' });
 
-    await browser.waitForTarget((target: puppeteer.Target) => target.url().includes(videoId), { timeout: 30000 });
+    await browser.waitForTarget((target: Target) => target.url().includes(videoId), { timeout: 30000 });
 
     let session: Session | null = null;
     let tries = 1;
@@ -96,7 +95,7 @@ export async function refreshSession(url: string): Promise<Session> {
 
             session = null;
             tries++;
-            await page.waitFor(3000);
+            await timeout(3000);
         }
     }
     browser.close();

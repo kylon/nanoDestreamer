@@ -179,3 +179,7 @@ export function ffmpegTimemarkToChunk(timemark: string): number {
 
     return (hrs * 60) + mins + (secs / 60);
 }
+
+export async function timeout(milliseconds: number): Promise<void> {
+    await ( new Promise(r => setTimeout(r, milliseconds)) );
+}

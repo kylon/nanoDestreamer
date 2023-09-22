@@ -2,18 +2,17 @@ import { argv } from './CommandLineParser';
 import { ERROR_CODE } from './Errors';
 import { setProcessEvents } from './Events';
 import { logger } from './Logger';
-import { getPuppeteerChromiumPath } from './PuppeteerHelper';
 import { TokenCache, refreshSession } from './TokenCache';
 import { Video, Session } from './Types';
-import { checkRequirements, ffmpegTimemarkToChunk, parseInputFile} from './Utils';
+import {checkRequirements, ffmpegTimemarkToChunk, parseInputFile, timeout} from './Utils';
 import { getVideoInfo, createUniquePath } from './VideoUtils';
 
 import fs from 'fs';
-import puppeteer from 'puppeteer';
+import puppeteer, {Browser, Page, Target} from 'puppeteer';
 import { ApiClient } from './ApiClient';
 
 
-const { FFmpegCommand, FFmpegInput, FFmpegOutput } = require('@tedconf/fessonia')();
+const { FFmpegCommand, FFmpegInput, FFmpegOutput } = require('fessonia')();
 const tokenCache: TokenCache = new TokenCache();
 export const chromeCacheFolder = '.chrome_data';
 
@@ -37,8 +36,7 @@ async function DoInteractiveLogin(url: string, username?: string): Promise<Sessi
 
     logger.info('Launching headless Chrome to perform the OpenID Connect dance...');
 
-    const browser: puppeteer.Browser = await puppeteer.launch({
-        executablePath: getPuppeteerChromiumPath(),
+    const browser: Browser = await puppeteer.launch({
         headless: false,
         userDataDir: (argv.keepLoginCookies) ? chromeCacheFolder : undefined,
         args: [
@@ -47,7 +45,7 @@ async function DoInteractiveLogin(url: string, username?: string): Promise<Sessi
             '--no-sandbox'
         ]
     });
-    const page: puppeteer.Page = (await browser.pages())[0];
+    const page: Page = (await browser.pages())[0];
 
     logger.info('Navigating to login page...');
     await page.goto(url, { waitUntil: 'load' });
@@ -70,7 +68,7 @@ async function DoInteractiveLogin(url: string, username?: string): Promise<Sessi
         remember the credentials or it could still prompt the user for a password */
     }
 
-    await browser.waitForTarget((target: puppeteer.Target) => target.url().endsWith('microsoftstream.com/'), { timeout: 150000 });
+    await browser.waitForTarget((target: Target) => target.url().endsWith('microsoftstream.com/'), { timeout: 150000 });
     logger.info('We are logged in.');
 
     let session: Session | null = null;
@@ -95,7 +93,7 @@ async function DoInteractiveLogin(url: string, username?: string): Promise<Sessi
 
             session = null;
             tries++;
-            await page.waitFor(3000);
+            await timeout(3000);
         }
     }
 
