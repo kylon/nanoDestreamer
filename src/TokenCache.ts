@@ -1,4 +1,4 @@
-import { chromeCacheFolder } from './destreamer';
+import { chromeCacheFolder } from './nanoDestreamer';
 import { ERROR_CODE } from './Errors';
 import { logger } from './Logger';
 import { Session } from './Types';

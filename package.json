@@ -1,15 +1,15 @@
 {
-  "name": "destreamer",
+  "name": "nanoDestreamer",
   "repository": {
     "type": "git",
     "url": "git://github.com/snobu/destreamer.git"
   },
-  "version": "2.1.0",
-  "description": "Save Microsoft Stream videos for offline enjoyment.",
-  "main": "build/src/destreamer.js",
-  "bin": "build/src/destreamer.js",
+  "version": "0.1.0",
+  "description": "Save Microsoft Stream videos for offline usage. For students",
+  "main": "build/src/nanoDestreamer.js",
+  "bin": "build/src/nanoDestreamer.js",
   "scripts": {
-    "build": "echo Building... && node node_modules/typescript/bin/tsc && echo Success!.",
+    "build": "echo Building... && rm -Rf build && node node_modules/typescript/bin/tsc && echo Success!.",
     "lint": "eslint src/*.ts"
   },
   "keywords": [],

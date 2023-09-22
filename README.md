@@ -32,7 +32,10 @@ $ npm run build or yarn build
 
 ## Usage
 
---inputFile also accept Microsoft Teams Groups url so if your Organization placed the videos you are interested in a group you can copy the link and Destreamer will download all the videos it can inside it! A group url looks like this https://web.microsoftstream.com/group/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+Example command:
+```sh
+$ node build/nanoDestreamer.js -f vidUrlsFile.txt -d ytdlp
+```
 
 Passing `--username` is optional. It's there to make logging in faster (the username field will be populated automatically on the login form).
 
@@ -40,6 +43,8 @@ You can use an absolute path for `-o` (output directory), for example `/home/nam
 
 ### Input file
 You can create a `.txt` file containing your video URLs, one video per line. The text file can have any name, followed by the `.txt` extension.
+
+Also accept Microsoft Teams Groups url so if your Organization placed the videos you are interested in a group you can copy the link and Destreamer will download all the videos it can inside it! A group url looks like this https://web.microsoftstream.com/group/XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 
 Example
 ```

@@ -15,7 +15,7 @@ export const argv: any = yargs.options({
     },
     downloader: {
         alias: 'd',
-        describe: 'Select ffmpeg (default) or yt-dlp as downloader',
+        describe: 'Select [ffmpeg] (default) or [ytdlp] as downloader',
         type: 'string',
         default: 'ffmpeg',
         demandOption: false
