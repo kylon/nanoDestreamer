@@ -9,7 +9,6 @@ import { checkRequirements, ffmpegTimemarkToChunk, parseInputFile} from './Utils
 import { getVideoInfo, createUniquePath } from './VideoUtils';
 
 import fs from 'fs';
-import isElevated from 'is-elevated';
 import puppeteer from 'puppeteer';
 import { ApiClient } from './ApiClient';
 
@@ -24,10 +23,6 @@ async function init(): Promise<void> {
 
     if (argv.verbose) {
         logger.level = 'verbose';
-    }
-
-    if (await isElevated()) {
-        process.exit(ERROR_CODE.ELEVATED_SHELL);
     }
 
     checkRequirements();
