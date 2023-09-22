@@ -3,7 +3,6 @@ import { ERROR_CODE } from './Errors';
 import { setProcessEvents } from './Events';
 import { logger } from './Logger';
 import { getPuppeteerChromiumPath } from './PuppeteerHelper';
-import { drawThumbnail } from './Thumbnail';
 import { TokenCache, refreshSession } from './TokenCache';
 import { Video, Session } from './Types';
 import { checkRequirements, ffmpegTimemarkToChunk, parseInputFile, parseCLIinput} from './Utils';
@@ -168,7 +167,6 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
         logger.info(`\nDownloading Video: ${video.title} \n`);
         logger.verbose('Extra video info \n' +
         '\t Video m3u8 playlist URL: '.cyan + video.playbackUrl + '\n' +
-        '\t Video tumbnail URL: '.cyan + video.posterImageUrl + '\n' +
         '\t Video subtitle URL (may not exist): '.cyan + video.captionsUrl + '\n' +
         '\t Video total chunks: '.cyan + video.totalChunks + '\n');
 
@@ -183,13 +181,6 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
         }
 
         const headers: string = 'Authorization: Bearer ' + session.AccessToken;
-
-        if (!argv.noExperiments) {
-            if (video.posterImageUrl) {
-                await drawThumbnail(video.posterImageUrl, session);
-            }
-        }
-
         const ffmpegInpt: any = new FFmpegInput(video.playbackUrl, new Map([
             ['headers', headers]
         ]));
