@@ -70,11 +70,9 @@ export async function parseInputFile(inputFile: string, defaultOutDir: string,
     for (let i = 0; i < rawContent.length; i++) {
         const line: string = rawContent[i];
 
-        // filter out lines with no content
-        if (!line.match(/\S/)) {
-            logger.warn(`Line ${i + 1} is empty, skipping..`);
+        if (!line.match(/\S/)) // empty line
             continue;
-        }
+
         // parse if line is option
         else if (line.includes('-dir')) {
             if (foundUrl) {
