@@ -4,7 +4,7 @@ import { setProcessEvents } from './Events';
 import { logger } from './Logger';
 import { TokenCache, refreshSession } from './TokenCache';
 import { Video, Session } from './Types';
-import {checkRequirements, ffmpegTimemarkToChunk, parseInputFile, timeout} from './Utils';
+import {checkRequirements, ffmpegTimemarkToChunk, parseInputFile, timeout, getVideoInputFileHash} from './Utils';
 import { getVideoInfo, createUniquePath } from './VideoUtils';
 import fs from 'fs';
 import puppeteer, {Browser, Page, Target} from 'puppeteer';
@@ -108,12 +108,25 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
     logger.info('Fetching videos info... \n');
 
     const videos: Array<Video> = createUniquePath(await getVideoInfo(videoGUIDs, session), outputDirectories, argv.format);
+    const inputListHash: string = getVideoInputFileHash(argv.inputFile);
     let ytdlpProcHandle: ChildProcess|null = null;
+    const doneTxt = 'donetmp.txt';
     let _stoppingProcess = false;
+    let done: string[] = [];
+
+    if (fs.existsSync(doneTxt))
+        done = fs.readFileSync(doneTxt).toString().split("\n");
+
+    if (done.length === 0 || done[0] !== inputListHash) { // input file changed or no donetmp yet, reset done file
+        fs.writeFileSync(doneTxt, inputListHash);
+        done = [];
+    }
 
     for (const [index, video] of videos.entries()) {
         if (argv.downloader === 'ytdlp' && _stoppingProcess)
             break;
+        else if (done.includes(video.playbackUrl))
+            continue;
 
         if (argv.keepLoginCookies && index !== 0) {
             logger.info('Trying to refresh token...');
@@ -184,6 +197,8 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
 
                 ffmpegCmd.on('success', () => {
                     logger.info(`\nDownload finished: ${video.outPath} \n`);
+                    done.push(video.playbackUrl);
+                    fs.appendFileSync(doneTxt, video.playbackUrl);
                     resolve();
                 });
 
@@ -257,8 +272,13 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
                             break;
                         }
 
-                        if (!found)
+                        if (!found) {
                             logger.error(`Cannot find video file in output folder!\n\nSrc:\n${tmpOutFile}\n\nDest:\n${video.outPath}`);
+
+                        } else {
+                            done.push(video.playbackUrl);
+                            fs.appendFileSync(doneTxt, video.playbackUrl);
+                        }
 
                     } catch (e: any) {
                         logger.error(`YT-dlp: download failed:\n${e.message}`);

@@ -2,10 +2,10 @@ import { ApiClient } from './ApiClient';
 import { ERROR_CODE } from './Errors';
 import { logger } from './Logger';
 import { Session } from './Types';
-
 import { AxiosResponse } from 'axios';
 import { execSync } from 'child_process';
-import fs from 'fs';
+import fs from 'node:fs';
+import crypto from 'node:crypto';
 
 
 async function extractGuids(url: string, client: ApiClient): Promise<Array<string> | null> {
@@ -182,4 +182,13 @@ export function ffmpegTimemarkToChunk(timemark: string): number {
 
 export async function timeout(milliseconds: number): Promise<void> {
     await ( new Promise(r => setTimeout(r, milliseconds)) );
+}
+
+export function getVideoInputFileHash(inputFile: string): string {
+    const fileBuffer = fs.readFileSync(inputFile);
+    const hashSum = crypto.createHash('sha256');
+
+    hashSum.update(fileBuffer);
+
+    return hashSum.digest('hex');
 }

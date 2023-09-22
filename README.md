@@ -21,6 +21,25 @@ Running inside **Cygwin/MinGW/MSYS** may fail, please use **cmd.exe** or **Power
 
 **WSL** (Windows Subsystem for Linux) is not supported.
 
+## Avoiding duplicates
+
+what is a download session?
+
+you create a txt file with a list of urls to download
+
+this list is a download session, if you change the list (add/remove urls), a new session will start
+
+
+if video urls input file changes, the _done_ file will be reset and you will get duplicates
+
+intended usage:
+
+create your urls list file and do not touch it until all downloads in the list are complete (even if it crashes and you restart it)
+
+once all finished, create a new urls input file (remove all existing urls)
+
+somewhat limited feature, but more than enough for this
+
 ## How to build
 
 To build destreamer clone this repository, install dependencies and run the build script -
