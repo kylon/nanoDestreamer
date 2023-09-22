@@ -13,6 +13,20 @@ export const argv: any = yargs.options({
         describe: 'The username used to log into Microsoft Stream (enabling this will fill in the email field for you).',
         demandOption: false
     },
+    downloader: {
+        alias: 'd',
+        describe: 'Select ffmpeg (default) or yt-dlp as downloader',
+        type: 'string',
+        default: 'ffmpeg',
+        demandOption: false
+    },
+    parallelDownloads: {
+        alias: 'p',
+        describe: 'Parallel fragment downloads (yt-dlp only)',
+        type: 'string',
+        default: '5',
+        demandOption: false
+    },
     inputFile: {
         alias: 'f',
         describe: 'Path to text file containing URLs and optionally outDirs. See the README for more on outDirs.',
