@@ -1,11 +1,9 @@
 import { CLI_ERROR, ERROR_CODE } from './Errors';
 import { checkOutDir } from './Utils';
 import { logger } from './Logger';
-import { templateElements } from './Types';
 
 import fs from 'fs';
 import readlineSync from 'readline-sync';
-import sanitize from 'sanitize-filename';
 import yargs from 'yargs';
 
 
@@ -14,12 +12,6 @@ export const argv: any = yargs.options({
         alias: 'u',
         type: 'string',
         describe: 'The username used to log into Microsoft Stream (enabling this will fill in the email field for you).',
-        demandOption: false
-    },
-    videoUrls: {
-        alias: 'i',
-        describe: 'List of urls to videos or Microsoft Stream groups.',
-        type: 'array',
         demandOption: false
     },
     inputFile: {
@@ -35,31 +27,10 @@ export const argv: any = yargs.options({
         default: 'videos',
         demandOption: false
     },
-    outputTemplate: {
-        alias: 't',
-        describe: 'The template for the title. See the README for more info.',
-        type: 'string',
-        default: '{title} - {publishDate} {uniqueId}',
-        demandOption: false
-    },
     keepLoginCookies: {
         alias: 'k',
         describe: 'Let Chromium cache identity provider cookies so you can use "Remember me" during login.\n' +
                   'Must be used every subsequent time you launch Destreamer if you want to log in automatically.',
-        type: 'boolean',
-        default: false,
-        demandOption: false
-    },
-    noExperiments: {
-        alias: 'x',
-        describe: 'Do not attempt to render video thumbnails in the console.',
-        type: 'boolean',
-        default: false,
-        demandOption: false
-    },
-    simulate: {
-        alias: 's',
-        describe: 'Disable video download and print metadata information to the console.',
         type: 'boolean',
         default: false,
         demandOption: false
@@ -100,19 +71,13 @@ export const argv: any = yargs.options({
     format: {
         describe: 'Output container format (mkv, mp4, mov, anything that FFmpeg supports).',
         type: 'string',
-        default: 'mkv',
+        default: 'mp4',
         demandOption: false
     },
-    skip: {
-        describe: 'Skip download if file already exists.',
-        type: 'boolean',
-        default: false,
-        demandOption: false
-    }
 })
 .wrap(120)
 .check(() => noArguments())
-.check((argv: any) => checkInputConflicts(argv.videoUrls, argv.inputFile))
+.check((argv: any) => checkInputConflicts(argv.inputFile))
 .check((argv: any) => {
     if (checkOutDir(argv.outputDirectory)) {
         return true;
@@ -123,7 +88,6 @@ export const argv: any = yargs.options({
         throw new Error(' ');
     }
 })
-.check((argv: any) => isOutputTemplateValid(argv))
 .argv;
 
 
@@ -140,21 +104,14 @@ function noArguments(): boolean {
 }
 
 
-function checkInputConflicts(videoUrls: Array<string | number> | undefined,
-    inputFile: string | undefined): boolean {
-    // check if both inputs are declared
-    if ((videoUrls !== undefined) && (inputFile !== undefined)) {
-        logger.error(CLI_ERROR.INPUT_ARG_CONFLICT);
-
-        throw new Error(' ');
-    }
+function checkInputConflicts(inputFile: string | undefined): boolean {
     // check if no input is declared or if they are declared but empty
-    else if (!(videoUrls || inputFile) || (videoUrls?.length === 0) || (inputFile?.length === 0)) {
+    if (!inputFile || inputFile?.length === 0) {
         logger.error(CLI_ERROR.MISSING_INPUT_ARG);
 
         throw new Error(' ');
     }
-    else if (inputFile) {
+    else {
         // check if inputFile doesn't end in '.txt'
         if (inputFile.substring(inputFile.length - 4) !== '.txt') {
             logger.error(CLI_ERROR.INPUTFILE_WRONG_EXTENSION);
@@ -171,34 +128,6 @@ function checkInputConflicts(videoUrls: Array<string | number> | undefined,
 
     return true;
 }
-
-
-function isOutputTemplateValid(argv: any): boolean {
-    const elementRegEx = RegExp(/{(.*?)}/g);
-    let match = elementRegEx.exec(argv.outputTemplate);
-
-    // if no template elements this fails
-    if (match) {
-        // keep iterating untill we find no more elements
-        while (match) {
-            if (!templateElements.includes(match[1])) {
-                logger.error(
-                    `'${match[0]}' is not available as a template element \n` +
-                    `Available templates elements: '${templateElements.join("', '")}' \n`,
-                    { fatal: true }
-                );
-
-                process.exit(1);
-            }
-            match = elementRegEx.exec(argv.outputTemplate);
-        }
-    }
-
-    argv.outputTemplate = sanitize(argv.outputTemplate.trim());
-
-    return true;
-}
-
 
 export function promptUser(choices: Array<string>): number {
     const index: number = readlineSync.keyInSelect(choices, 'Which resolution/format do you prefer?');

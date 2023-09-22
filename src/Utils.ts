@@ -44,41 +44,6 @@ async function extractGuids(url: string, client: ApiClient): Promise<Array<strin
     return null;
 }
 
-
-/**
- * Parse the list of url given by the user via console input.
- * They can either be video urls or group urls, in which case the guids
- * will be added from oldest to newest.
- *
- * @param {Array<string>} urlList       list of link to parse
- * @param {string}        defaultOutDir the directry used to save the videos
- * @param {Session}       session       used to call the API to get the GUIDs from group links
- *
- * @returns Array of 2 elements, 1st one being the GUIDs array, 2nd one the output directories array
- */
-export async function parseCLIinput(urlList: Array<string>, defaultOutDir: string,
-    session: Session): Promise<Array<Array<string>>> {
-
-    const apiClient: ApiClient = ApiClient.getInstance(session);
-    const guidList: Array<string> = [];
-
-    for (const url of urlList) {
-        const guids: Array<string> | null = await extractGuids(url, apiClient);
-
-        if (guids) {
-            guidList.push(...guids);
-        }
-        else {
-            logger.warn(`Invalid url '${url}', skipping..`);
-        }
-    }
-
-    const outDirList: Array<string> = Array(guidList.length).fill(defaultOutDir);
-
-    return [guidList, outDirList];
-}
-
-
 /**
  * Parse the input text file.
  * The urls in the file can either be video urls or group urls, in which case the guids

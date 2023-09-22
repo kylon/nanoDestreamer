@@ -35,10 +35,7 @@ export const errors: { [key: number]: string } = {
 
 export const enum CLI_ERROR {
     MISSING_INPUT_ARG = 'You must specify a URLs source. \n' +
-    'Valid options are -i for one or more URLs separated by space or -f for input file. \n',
-
-    INPUT_ARG_CONFLICT = 'Too many URLs sources specified! \n' +
-    'Please specify a single source, either -i or -f \n',
+    'Valid option is -f for input file. \n',
 
     INPUTFILE_WRONG_EXTENSION = 'The specified inputFile has the wrong extension \n' +
     'Please make sure to use path/to/filename.txt when useing the -f option \n',

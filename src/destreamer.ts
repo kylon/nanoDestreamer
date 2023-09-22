@@ -5,10 +5,9 @@ import { logger } from './Logger';
 import { getPuppeteerChromiumPath } from './PuppeteerHelper';
 import { TokenCache, refreshSession } from './TokenCache';
 import { Video, Session } from './Types';
-import { checkRequirements, ffmpegTimemarkToChunk, parseInputFile, parseCLIinput} from './Utils';
+import { checkRequirements, ffmpegTimemarkToChunk, parseInputFile} from './Utils';
 import { getVideoInfo, createUniquePath } from './VideoUtils';
 
-import cliProgress from 'cli-progress';
 import fs from 'fs';
 import isElevated from 'is-elevated';
 import puppeteer from 'puppeteer';
@@ -35,10 +34,6 @@ async function init(): Promise<void> {
 
     if (argv.username) {
         logger.info(`Username: ${argv.username}`);
-    }
-
-    if (argv.simulate) {
-        logger.warn('Simulate mode, there will be no video downloaded. \n');
     }
 }
 
@@ -124,45 +119,15 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
     logger.info('Fetching videos info... \n');
     const videos: Array<Video> = createUniquePath (
         await getVideoInfo(videoGUIDs, session, argv.closedCaptions),
-        outputDirectories, argv.outputTemplate, argv.format, argv.skip
+        outputDirectories, argv.format
         );
 
-    if (argv.simulate) {
-        videos.forEach((video: Video) => {
-            logger.info(
-                '\nTitle:          '.green + video.title +
-                '\nOutPath:        '.green + video.outPath +
-                '\nPublished Date: '.green + video.publishDate +
-                '\nPlayback URL:   '.green + video.playbackUrl +
-                ((video.captionsUrl) ? ('\nCC URL:         '.green + video.captionsUrl) : '')
-            );
-        });
-
-        return;
-    }
-
     for (const [index, video] of videos.entries()) {
-
-        if (argv.skip && fs.existsSync(video.outPath)) {
-            logger.info(`File already exists, skipping: ${video.outPath} \n`);
-            continue;
-        }
-
         if (argv.keepLoginCookies && index !== 0) {
             logger.info('Trying to refresh token...');
             session = await refreshSession('https://web.microsoftstream.com/video/' + videoGUIDs[index]);
             ApiClient.getInstance().setSession(session);
         }
-
-        const pbar: cliProgress.SingleBar = new cliProgress.SingleBar({
-            barCompleteChar: '\u2588',
-            barIncompleteChar: '\u2591',
-            format: 'progress [{bar}] {percentage}% {speed} {eta_formatted}',
-            // process.stdout.columns may return undefined in some terminals (Cygwin/MSYS)
-            barsize: Math.floor((process.stdout.columns || 30) / 3),
-            stopOnComplete: true,
-            hideCursor: true,
-        });
 
         logger.info(`\nDownloading Video: ${video.title} \n`);
         logger.verbose('Extra video info \n' +
@@ -192,8 +157,6 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
         const ffmpegCmd: any = new FFmpegCommand();
 
         const cleanupFn: () => void = () => {
-            pbar.stop();
-
            if (argv.noCleanup) {
                return;
            }
@@ -205,10 +168,6 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
                 // Future handling of an error (maybe)
             }
         };
-
-        pbar.start(video.totalChunks, 0, {
-            speed: '0'
-        });
 
         // prepare ffmpeg command line
         ffmpegCmd.addInput(ffmpegInpt);
@@ -224,14 +183,7 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
         ffmpegCmd.on('update', async (data: any) => {
             const currentChunks: number = ffmpegTimemarkToChunk(data.out_time);
 
-            pbar.update(currentChunks, {
-                speed: data.bitrate
-            });
-
-            // Graceful fallback in case we can't get columns (Cygwin/MSYS)
-            if (!process.stdout.columns) {
-                process.stdout.write(`--- Speed: ${data.bitrate}, Cursor: ${data.out_time}\r`);
-            }
+            process.stdout.write(`-- Speed: ${data.bitrate}, Cursor: ${data.out_time}, Progress: ${currentChunks}\r`);
         });
 
         process.on('SIGINT', cleanupFn);
@@ -246,7 +198,6 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
             });
 
             ffmpegCmd.on('success', () => {
-                pbar.update(video.totalChunks); // set progress bar to 100%
                 logger.info(`\nDownload finished: ${video.outPath} \n`);
                 resolve();
             });
@@ -273,14 +224,8 @@ async function main(): Promise<void> {
     let videoGUIDs: Array<string>;
     let outDirs: Array<string>;
 
-    if (argv.videoUrls) {
-        logger.info('Parsing video/group urls');
-        [videoGUIDs, outDirs] =  await parseCLIinput(argv.videoUrls as Array<string>, argv.outputDirectory, session);
-    }
-    else {
-        logger.info('Parsing input file');
-        [videoGUIDs, outDirs] =  await parseInputFile(argv.inputFile!, argv.outputDirectory, session);
-    }
+    logger.info('Parsing input file');
+    [videoGUIDs, outDirs] =  await parseInputFile(argv.inputFile!, argv.outputDirectory, session);
 
     logger.verbose('List of GUIDs and corresponding output directory \n' +
         videoGUIDs.map((guid: string, i: number) =>
