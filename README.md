@@ -2,6 +2,8 @@
 
 # Nano-Destreamer
 
+stripped down version of destreamer with yt-dlp
+
 ## Disclaimer
 
 Hopefully this doesn't break the end user agreement for Microsoft Stream. Since we're simply saving the HLS stream to disk as if we were a browser, this does not abuse the streaming endpoints. However i take no responsibility if either Microsoft or your Office 365 admins request a chat with you in a small white room.
