@@ -1,6 +1,5 @@
 export const enum ERROR_CODE {
     UNHANDLED_ERROR,
-    ELEVATED_SHELL,
     CANCELLED_USER_INPUT,
     MISSING_FFMPEG,
     OUTDATED_FFMPEG,
@@ -13,9 +12,6 @@ export const enum ERROR_CODE {
 export const errors: { [key: number]: string } = {
     [ERROR_CODE.UNHANDLED_ERROR]: 'Unhandled error!\n' +
         'Timeout or fatal error, please check your downloads directory and try again',
-
-    [ERROR_CODE.ELEVATED_SHELL]: 'Destreamer cannot run in an elevated (Administrator/root) shell.\n' +
-        'Please run in a regular, non-elevated window.',
 
     [ERROR_CODE.CANCELLED_USER_INPUT]: 'Input was cancelled by user',
 
