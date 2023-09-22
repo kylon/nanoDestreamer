@@ -44,7 +44,7 @@ function durationToTotalChunks(duration: string): number {
 }
 
 
-export async function getVideoInfo(videoGuids: Array<string>, session: Session, subtitles?: boolean): Promise<Array<Video>> {
+export async function getVideoInfo(videoGuids: Array<string>, session: Session): Promise<Array<Video>> {
     const metadata: Array<Video> = [];
     let title: string;
     let duration: string;
@@ -53,11 +53,8 @@ export async function getVideoInfo(videoGuids: Array<string>, session: Session, 
     let author: string;
     let authorEmail: string;
     let uniqueId: string;
-    const outPath = '';
     let totalChunks: number;
     let playbackUrl: string;
-    let posterImageUrl: string;
-    let captionsUrl: string | undefined;
 
     const apiClient: ApiClient = ApiClient.getInstance(session);
 
@@ -90,20 +87,6 @@ export async function getVideoInfo(videoGuids: Array<string>, session: Session, 
                 return item['playbackUrl'];
             })[0];
 
-        posterImageUrl = response?.data['posterImage']['medium']['url'];
-
-        if (subtitles) {
-            const captions: AxiosResponse<any> | undefined = await apiClient.callApi(`videos/${guid}/texttracks`, 'get');
-
-            if (!captions?.data.value.length) {
-                captionsUrl = undefined;
-            }
-            else if (captions?.data.value.length === 1) {
-                logger.info(`Found subtitles for ${title}. \n`);
-                captionsUrl = captions?.data.value.pop().url;
-            }
-        }
-
         metadata.push({
             title: title,
             duration: duration,
@@ -112,11 +95,9 @@ export async function getVideoInfo(videoGuids: Array<string>, session: Session, 
             author: author,
             authorEmail: authorEmail,
             uniqueId: uniqueId,
-            outPath: outPath,
+            outPath: '',
             totalChunks: totalChunks,    // Abstraction of FFmpeg timemark
-            playbackUrl: playbackUrl,
-            posterImageUrl: posterImageUrl,
-            captionsUrl: captionsUrl
+            playbackUrl: playbackUrl
         });
     }
 

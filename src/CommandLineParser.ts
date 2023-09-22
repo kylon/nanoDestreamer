@@ -41,13 +41,6 @@ export const argv: any = yargs.options({
         default: false,
         demandOption: false
     },
-    closedCaptions: {
-        alias: 'cc',
-        describe: 'Check if closed captions are available and let the user choose which one to download (will not ask if only one available).',
-        type: 'boolean',
-        default: false,
-        demandOption: false
-    },
     noCleanup: {
         alias: 'nc',
         describe: 'Do not delete the downloaded video file when an FFmpeg error occurs.',

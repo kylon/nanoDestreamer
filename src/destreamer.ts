@@ -111,7 +111,7 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
 
     logger.info('Fetching videos info... \n');
     const videos: Array<Video> = createUniquePath (
-        await getVideoInfo(videoGUIDs, session, argv.closedCaptions),
+        await getVideoInfo(videoGUIDs, session),
         outputDirectories, argv.format
         );
 
@@ -125,7 +125,6 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
         logger.info(`\nDownloading Video: ${video.title} \n`);
         logger.verbose('Extra video info \n' +
         '\t Video m3u8 playlist URL: '.cyan + video.playbackUrl + '\n' +
-        '\t Video subtitle URL (may not exist): '.cyan + video.captionsUrl + '\n' +
         '\t Video total chunks: '.cyan + video.totalChunks + '\n');
 
         logger.info('Spawning ffmpeg with access token and HLS URL. This may take a few seconds...\n\n');
@@ -165,13 +164,6 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
         // prepare ffmpeg command line
         ffmpegCmd.addInput(ffmpegInpt);
         ffmpegCmd.addOutput(ffmpegOutput);
-        if (argv.closedCaptions && video.captionsUrl) {
-            const captionsInpt: any = new FFmpegInput(video.captionsUrl, new Map([
-                ['headers', headers]
-            ]));
-
-            ffmpegCmd.addInput(captionsInpt);
-        }
 
         ffmpegCmd.on('update', async (data: any) => {
             const currentChunks: number = ffmpegTimemarkToChunk(data.out_time);
