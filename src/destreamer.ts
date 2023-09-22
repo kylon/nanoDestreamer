@@ -6,11 +6,9 @@ import { TokenCache, refreshSession } from './TokenCache';
 import { Video, Session } from './Types';
 import {checkRequirements, ffmpegTimemarkToChunk, parseInputFile, timeout} from './Utils';
 import { getVideoInfo, createUniquePath } from './VideoUtils';
-
 import fs from 'fs';
 import puppeteer, {Browser, Page, Target} from 'puppeteer';
 import { ApiClient } from './ApiClient';
-
 
 const { FFmpegCommand, FFmpegInput, FFmpegOutput } = require('fessonia')();
 const tokenCache: TokenCache = new TokenCache();
@@ -55,10 +53,6 @@ async function DoInteractiveLogin(url: string, username?: string): Promise<Sessi
             await page.waitForSelector('input[type="email"]', {timeout: 3000});
             await page.keyboard.type(username);
             await page.click('input[type="submit"]');
-        }
-        else {
-            /* If a username was not provided we let the user take actions that
-            lead up to the video page. */
         }
     }
     catch (e) {
@@ -128,14 +122,6 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
         '\t Video total chunks: '.cyan + video.totalChunks + '\n');
 
         logger.info('Spawning ffmpeg with access token and HLS URL. This may take a few seconds...\n\n');
-        if (!process.stdout.columns) {
-            logger.warn(
-                'Unable to get number of columns from terminal.\n' +
-                'This happens sometimes in Cygwin/MSYS.\n' +
-                'No progress bar can be rendered, however the download process should not be affected.\n\n' +
-                'Please use PowerShell or cmd.exe to run destreamer on Windows.'
-            );
-        }
 
         const headers: string = 'Authorization: Bearer ' + session.AccessToken;
         const ffmpegInpt: any = new FFmpegInput(video.playbackUrl, new Map([
@@ -216,8 +202,7 @@ async function main(): Promise<void> {
         videoGUIDs.map((guid: string, i: number) =>
             `\thttps://web.microsoftstream.com/video/${guid} => ${outDirs[i]} \n`).join(''));
 
-
-    downloadVideo(videoGUIDs, outDirs, session);
+    await downloadVideo(videoGUIDs, outDirs, session);
 }
 
 
