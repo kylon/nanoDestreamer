@@ -127,7 +127,7 @@ export async function getVideoInfo(videoGuids: Array<string>, session: Session, 
 export function createUniquePath(videos: Array<Video>, outDirs: Array<string>, format: string): Array<Video> {
 
     videos.forEach((video: Video, index: number) => {
-        const template = '{title} - {publishDate} {uniqueId}';
+        const template = '{title} - {publishDate}';
         let title: string = template;
         let finalTitle: string;
         const elementRegEx = RegExp(/{(.*?)}/g);
