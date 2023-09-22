@@ -132,36 +132,6 @@ Options:
 
 - We default to `.mkv` for the output container. If you prefer something else (like `mp4`), pass `--format mp4`.
 
-Download a video -
-```sh
-$ ./destreamer.sh -i "https://web.microsoftstream.com/video/VIDEO-1"
-```
-
-Download a video and re-encode with HEVC (libx265) -
-```sh
-$ ./destreamer.sh -i "https://web.microsoftstream.com/video/VIDEO-1" --vcodec libx265
-```
-
-Download a video and speed up the interactive login by automagically filling in the username -
-```sh
-$ ./destreamer.sh -u user@example.com -i "https://web.microsoftstream.com/video/VIDEO-1"
-```
-
-Download a video to a custom path -
-```sh
-$ ./destreamer.sh -i "https://web.microsoftstream.com/video/VIDEO-1" -o /Users/hacker/Downloads
-```
-
-Download two or more videos -
-```sh
-$ ./destreamer.sh -i "https://web.microsoftstream.com/video/VIDEO-1" \
-                     "https://web.microsoftstream.com/video/VIDEO-2"
-```
-
-Download many videos but read URLs from a file -
-```sh
-$ ./destreamer.sh -f list.txt
-```
 ### Input file
 You can create a `.txt` file containing your video URLs, one video per line. The text file can have any name, followed by the `.txt` extension.
 Additionally you can have destreamer download each video in the input list to a separate directory.
@@ -208,16 +178,6 @@ Input:
 Expected filename:
     This is an example - 0:16:18 - 2020-07-30 - 10:30:13 - lukaarma - example@domain.org - #3c6ca929.mkv
 ```
-
-## Expected output
-
-Windows Terminal -
-
-![screenshot](assets/screenshot-win.png)
-
-iTerm2 on a Mac -
-
-![screenshot](assets/screenshot-mac.png)
 
 By default, downloads are saved under project root `Destreamer/videos/` ( Not the system media Videos folder ), unless specified by `-o` (output directory).
 
