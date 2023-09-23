@@ -118,7 +118,7 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
         done = fs.readFileSync(doneTxt).toString().split("\n");
 
     if (done.length === 0 || done[0] !== inputListHash) { // input file changed or no donetmp yet, reset done file
-        fs.writeFileSync(doneTxt, inputListHash);
+        fs.writeFileSync(doneTxt, `${inputListHash}\n`);
         done = [];
     }
 
@@ -198,7 +198,7 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
                 ffmpegCmd.on('success', () => {
                     logger.info(`\nDownload finished: ${video.outPath} \n`);
                     done.push(video.playbackUrl);
-                    fs.appendFileSync(doneTxt, video.playbackUrl);
+                    fs.appendFileSync(doneTxt, `${video.playbackUrl}\n`);
                     resolve();
                 });
 
@@ -277,7 +277,7 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
 
                         } else {
                             done.push(video.playbackUrl);
-                            fs.appendFileSync(doneTxt, video.playbackUrl);
+                            fs.appendFileSync(doneTxt, `${video.playbackUrl}\n`);
                         }
 
                     } catch (e: any) {
