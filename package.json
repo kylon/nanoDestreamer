@@ -31,7 +31,7 @@
     "colors": "^1.4.0",
     "iso8601-duration": "^2.1.1",
     "jwt-decode": "^3.1.2",
-    "puppeteer": "21.3.3",
+    "puppeteer": "21.3.5",
     "sanitize-filename": "^1.6.3",
     "typescript": "^5.2.2",
     "winston": "^3.10.0",
