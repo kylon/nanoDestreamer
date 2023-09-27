@@ -243,7 +243,7 @@ async function downloadVideo(videoGUIDs: Array<string>, outputDirectories: Array
 
                    const outStr = data.toString();
 
-                   if (!outStr.startsWith('frame=')) {
+                   if (!outStr.startsWith('frame=') && !outStr.startsWith('size=')) {
                        logger.verbose(outStr);
                        return;
                    }
