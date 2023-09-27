@@ -106,7 +106,6 @@ export async function getVideoInfo(videoGuids: Array<string>, session: Session):
 
 
 export function createUniquePath(videos: Array<Video>, outDirs: Array<string>, format: string): Array<Video> {
-
     videos.forEach((video: Video, index: number) => {
         const template = '{title} - {publishDate}';
         let title: string = template;
@@ -123,8 +122,8 @@ export function createUniquePath(videos: Array<Video>, outDirs: Array<string>, f
         let i = 0;
         finalTitle = title;
 
-        while (fs.existsSync(path.join(outDirs[index], finalTitle + '.' + format))) {
-            finalTitle = `${title}.${++i}`;
+        while (fs.existsSync(path.join(outDirs[index], `${finalTitle}.${format}`))) {
+            finalTitle = `${title} (${++i})`;
         }
 
         const finalFileName = `${finalTitle}.${format}`;
